@@ -2,5 +2,5 @@ dist
 data
 ncc
 node_modules
+package-lock.json
 .env
-.prettierrc

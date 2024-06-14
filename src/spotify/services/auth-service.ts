@@ -70,7 +70,7 @@ export class SpotifyAuthService {
       )}`
     )
 
-    app.authServer.startServer()
+    //app.authServer.startServer()
   }
 
   private setExpireDate(expireDate: number) {

@@ -1,8 +1,7 @@
 import fastify, { FastifyRequest, FastifyReply } from "fastify";
+import fastifyWebsocket, { WebSocket } from "@fastify/websocket";
 import { App } from "../app";
 import { RoutesConst } from "./constants";
-
-//type RunningServer = ReturnType<Application["listen"]>;
 
 export class AuthServer {
   public app: App;
@@ -18,20 +17,29 @@ export class AuthServer {
   constructor(app: App) {
     this.app = app;
 
-    this.server.get(RoutesConst.SPOTI_CODE, this.handleSpotifyCode.bind(this));
-    this.server.get(RoutesConst.TWITCH_CODE, this.handleTwitchCode.bind(this));
+    this.server.register(fastifyWebsocket);
+
+    this.server.get(RoutesConst.WEBSOCKET_PATH, { websocket: true }, this.websocketHandler.bind(this));
+    this.server.get(RoutesConst.PLAYER, this.playerHandler.bind(this));
+
+    this.server.get(RoutesConst.SPOTI_CODE, this.spotifyCodeHandler.bind(this));
+    this.server.get(RoutesConst.TWITCH_CODE, this.twitchCodeHandler.bind(this));
+
+    this.startServer();
   }
 
-  public startServer() {
-    if (!this.serverStarted) {
-      this.serverStarted = new Date();
-      this.server.listen({
-        port: Number(process.env.AUTH_SERVER_PORT),
-      });
-    }
+  /**
+   * HTML page with a song player that will be used to play songs
+   */
+  private playerHandler(req: FastifyRequest, res: FastifyReply) {
+    // todo: implement
   }
 
-  private handleSpotifyCode(req: FastifyRequest, res: FastifyReply) {
+  private websocketHandler(socket: WebSocket, req: FastifyRequest) {
+    // todo: handle song requests
+  }
+
+  private spotifyCodeHandler(req: FastifyRequest, res: FastifyReply) {
     this.spotifyCodeReceived = new Date();
 
     res.send(this.autoCloseHtml);
@@ -42,7 +50,7 @@ export class AuthServer {
     this.app.spotifyClient.authService.authWithCode(query.code);
   }
 
-  private handleTwitchCode(req: FastifyRequest, res: FastifyReply) {
+  private twitchCodeHandler(req: FastifyRequest, res: FastifyReply) {
     this.twitchCodeReceived = new Date();
 
     res.send(this.autoCloseHtml);
@@ -51,5 +59,14 @@ export class AuthServer {
     };
 
     this.app.twitchClient.getTokensFromCode(query.code);
+  }
+
+  private startServer() {
+    if (!this.serverStarted) {
+      this.serverStarted = new Date();
+      this.server.listen({
+        port: Number(process.env.AUTH_SERVER_PORT),
+      });
+    }
   }
 }

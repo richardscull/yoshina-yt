@@ -86,7 +86,7 @@ export class TwitchAuthService {
 
     Log('Twitch', `You need to authorize first!Use this url:\n${coloredLink}`)
 
-    this.twitchClient.app.authServer.startServer()
+    //this.twitchClient.app.authServer.startServer()
   }
 
   private onRefresh(
