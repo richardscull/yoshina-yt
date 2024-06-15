@@ -47,7 +47,7 @@ export class AuthServer {
       code: string;
     };
 
-    this.app.spotifyClient.authService.authWithCode(query.code);
+    this.app.youtubeClient.authService.SetRefreshToken(query.code);
   }
 
   private twitchCodeHandler(req: FastifyRequest, res: FastifyReply) {
