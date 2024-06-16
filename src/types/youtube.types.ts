@@ -1,6 +1,9 @@
 export interface SongObject {
-  user: string;
-  link: string;
+  title: string;
+  videoId: string;
+  requestedBy: string;
+  thumbnail?: string;
+  duration?: string;
 }
 
 export type TrackShortInfo = {
