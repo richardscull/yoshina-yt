@@ -3,6 +3,8 @@ import fastifyWebsocket, { WebSocket } from "@fastify/websocket";
 import fastifyStatic from "@fastify/static";
 import { App } from "../app";
 import { RoutesConst } from "./constants";
+import { ServerMessage, ServerMessageType } from "../types/websocket.types";
+import { Log } from "../utils/log";
 
 export class WebServer {
   public app: App;
@@ -45,7 +47,51 @@ export class WebServer {
 
   private websocketHandler(connection: WebSocket, _: FastifyRequest) {
     this.websocketClients.add(connection);
-    connection.send("Hello from server o/");
+
+    const data: ServerMessage = {
+      type: ServerMessageType.MESSAGE,
+      data: "Hello from server o/",
+    };
+
+    connection.send(JSON.stringify(data));
+
+    connection.on("message", (message: any) => {
+      message = JSON.parse(message) as ServerMessage;
+
+      if (!message.type) return;
+
+      const TypesWithoutData = [ServerMessageType.GET_CURRENT_SONG, ServerMessageType.NEW_SONG];
+      if (!TypesWithoutData.includes(message.type) && !message.data) return;
+
+      Log("WebSocket", `Received message with type: ${message.type}`);
+
+      switch (message.type) {
+        case ServerMessageType.NEW_SONG:
+          this.app.youtubeClient.websocketService.NextSong();
+          break;
+        // TODO: Implement these
+        // case ServerMessageType.PAUSE_SONG:
+        //   this.app.youtubeClient.websocketService.SendPauseSong();
+        //   break;
+        // case ServerMessageType.RESUME_SONG:
+        //   this.app.youtubeClient.websocketService.SendResumeSong();
+        //   break;
+        // case ServerMessageType.CHANGE_VOLUME:
+        //   this.app.youtubeClient.websocketService.SendChangeVolume(message.data);
+        //   break;
+        // case ServerMessageType.UPDATE_QUEUE:
+        //   this.app.youtubeClient.websocketService.SendUpdateQueue(message.data);
+        //   break;
+        case ServerMessageType.GET_CURRENT_SONG:
+          this.app.youtubeClient.websocketService.SendCurrentSong();
+          break;
+        case ServerMessageType.MESSAGE:
+          Log("WebSocket", `Got message: ${message.data}`);
+          break;
+        default:
+          console.log("Unknown message type", message.type);
+      }
+    });
 
     connection.on("close", () => {
       this.websocketClients.delete(connection);

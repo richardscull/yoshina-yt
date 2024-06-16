@@ -14,8 +14,8 @@ export default class YoutubeClient {
   public websocketService: YoutubeWebSocketService;
 
   public requestsQueue: Set<RequestQueueElement> = new Set();
-  public songsQueue: Set<SongObject> = new Set();
-  public currentSong?: SongObject;
+  private songsQueue: Set<SongObject> = new Set();
+  private currentSong: (SongObject & { requestedAt: number }) | null = null;
 
   constructor(app: App) {
     this.app = app;
@@ -25,5 +25,39 @@ export default class YoutubeClient {
     this.musicService = new YoutubeMusicService(this);
 
     Log("Youtube", "Youtube Client started");
+  }
+
+  public AddSongToQueue(song: SongObject) {
+    this.songsQueue.add(song);
+
+    if (!this.currentSong) {
+      this.PopSongFromQueue();
+    }
+
+    return this.songsQueue;
+  }
+
+  public PopSongFromQueue() {
+    if (this.songsQueue.size <= 0) {
+      this.currentSong = null;
+    } else {
+      const nextSong = this.songsQueue.values().next().value;
+      this.songsQueue.delete(nextSong);
+
+      this.currentSong = {
+        ...nextSong,
+        requestedAt: new Date().getTime(),
+      };
+    }
+
+    return this.currentSong;
+  }
+
+  public GetCurrentSong() {
+    return this.currentSong;
+  }
+
+  public GetQueue() {
+    return this.songsQueue;
   }
 }

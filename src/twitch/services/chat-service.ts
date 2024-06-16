@@ -27,7 +27,8 @@ export class TwitchChatService {
 
     const data = await this.twitchClient.app.youtubeClient.musicService.GetDataFromCurrentSong();
 
-    data.isPlaying ? this.Say(`@${user} , Current song: "${data.title}" requested by ${data.requestBy}`) : this.Say(`@${user} , No song is currently playing`);
+    if (!data) return this.Say(`@${user} , No song is currently playing`);
+    this.Say(`@${user} , Current song: "${data.title}" requested by ${data.requestedBy}`);
   }
 
   public Say(message: string) {

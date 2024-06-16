@@ -1,22 +1,31 @@
-import { request } from "http";
 import { HandleSongRequestOptions, RequestQueueElement } from "../../types/spotify.types";
 import { Log } from "../../utils/log";
 import YoutubeClient from "../youtube-client";
 import play, { SpotifyTrack } from "play-dl";
-import e from "express";
+import { SongObject } from "../../types/youtube.types";
+import { GetValidImage } from "../../utils/check-url";
 
 export const ErrorCodes = {
   IS_PLAYLIST: "Sorry %username% , but I can't play playlists.",
   NO_RESULT: "Sorry %username% , but I can't find this track in YouTube.",
   IS_LIVE: "Sorry %username% , but I can't play live streams.",
   BAD_REQUEST: "Sorry %username% , but I can't find this track.",
+  TOO_LONG: "Sorry %username% , but this track is too long. It should be less that 10 minutes.",
+  UNTRUSTED: "Sorry %username% , but this track is untrusted. It should have at least 5000 views.",
 };
 
 export default class YoutubeMusicService {
   public youtubeClient: YoutubeClient;
+  private isYoutubeFilterEnabled: boolean = true;
 
   constructor(client: YoutubeClient) {
     this.youtubeClient = client;
+
+    const envFilter = process.env.YOUTUBE_EXPLICIT_FILTER;
+
+    if (envFilter) {
+      this.isYoutubeFilterEnabled = envFilter.toLowerCase() === "true";
+    }
 
     Log("Youtube", "Music Service started");
 
@@ -65,15 +74,19 @@ export default class YoutubeMusicService {
 
         this.youtubeClient.app.twitchClient.chatService.Say(
           `@${user} 's track "${artists} - ${song.video_details.title}" ${
-            this.youtubeClient.songsQueue.size ? " added to the queue" : " will start playing soon"
+            this.youtubeClient.GetQueue().size ? " added to the queue" : " will start playing soon"
           }`
         );
 
-        // todo: ws send play song
-        this.youtubeClient.songsQueue.add({
-          user,
-          link: ytUrl,
-        });
+        const request: SongObject = {
+          videoId: ytUrl.split("=")[1].split("&")[0],
+          requestedBy: user,
+          title: song.video_details.title || "Unknown",
+          duration: song.video_details.durationRaw,
+          thumbnail: await GetValidImage(song.video_details.thumbnails),
+        };
+
+        await this.addSongToQueue(request);
 
         resolve(true);
       } catch (err) {
@@ -87,12 +100,12 @@ export default class YoutubeMusicService {
 
     switch (validateType) {
       case "sp_track":
-        return await this.getSpotifyTrack(link).catch(() => {
-          throw ErrorCodes.BAD_REQUEST;
+        return await this.getSpotifyTrack(link).catch((err) => {
+          throw err;
         });
       case "yt_video":
-        return await this.getYouTubeTrack(link).catch(() => {
-          throw ErrorCodes.BAD_REQUEST;
+        return await this.getYouTubeTrack(link).catch((err) => {
+          throw err;
         });
       case "yt_playlist":
       case "sp_playlist":
@@ -112,11 +125,25 @@ export default class YoutubeMusicService {
       source: { youtube: "video" },
     });
 
-    const filteredResult = searchResult.filter((element) => {
+    let filteredResult = searchResult.filter((element) => {
       return element.uploadedAt || element.music;
     });
 
     if (filteredResult.length === 0) throw ErrorCodes.NO_RESULT;
+
+    filteredResult.filter((element) => {
+      return element.durationInSec < 600;
+    });
+
+    if (filteredResult.length === 0) throw ErrorCodes.TOO_LONG;
+
+    if (this.isYoutubeFilterEnabled) {
+      filteredResult = filteredResult.filter((element) => {
+        return element.views >= 5000;
+      });
+    }
+
+    if (filteredResult.length === 0) throw ErrorCodes.UNTRUSTED;
 
     return filteredResult[0].url;
   }
@@ -127,56 +154,34 @@ export default class YoutubeMusicService {
     });
 
     if (videoData.LiveStreamData.isLive) throw ErrorCodes.IS_LIVE;
+    if (videoData.video_details.durationInSec > 600) throw ErrorCodes.TOO_LONG;
+    if (this.isYoutubeFilterEnabled && videoData.video_details.views < 5000) throw ErrorCodes.UNTRUSTED;
 
-    return url;
+    return videoData.video_details.url;
   }
 
-  // todo: ws send play song
-  private playSong(link: string) {
-    // return new Promise<PlaySongReturn>(async (resolve, reject) => {
-    //   try {
-    //     const devicesResponse = await this.spotifyClient.api.getMyDevices();
-    //     if (!devicesResponse.body.devices.length) return reject();
-    //     const trackId = getTrackIdFromLink(link);
-    //     const trackResponse = await this.spotifyClient.api.getTrack(trackId!);
-    //     let isQueue = false;
-    //     if (!trackResponse.body) return reject();
-    //     const isPlaying = await this.checkIsPlaying();
-    //     switch (isPlaying) {
-    //       case true:
-    //         await this.spotifyClient.api.addToQueue(this.createTrackUri(trackResponse.body.id));
-    //         isQueue = true;
-    //         break;
-    //       case false:
-    //         await this.spotifyClient.api.play({
-    //           uris: [this.createTrackUri(trackResponse.body.id)],
-    //         });
-    //         break;
-    //     }
-    //     resolve({ isQueue, song: trackResponse.body });
-    //   } catch (err) {
-    //     console.log(err);
-    //     reject(err);
-    //   }
-    // });
+  private addSongToQueue(request: SongObject) {
+    return new Promise<boolean>(async (resolve, reject) => {
+      try {
+        const isCurrentSongEmpty = !this.youtubeClient.GetCurrentSong();
+
+        this.youtubeClient.AddSongToQueue(request);
+
+        if (isCurrentSongEmpty) {
+          const song = this.youtubeClient.GetCurrentSong();
+
+          if (song) this.youtubeClient.websocketService.SendNewSong(song);
+        }
+
+        return resolve(true);
+      } catch (err) {
+        console.log(err);
+        reject(err);
+      }
+    });
   }
 
   public async GetDataFromCurrentSong() {
-    const currentSong = this.youtubeClient.currentSong;
-
-    if (!currentSong) {
-      return {
-        isPlaying: false,
-        title: "",
-        requestBy: "",
-      };
-    } else {
-      const data = await play.video_info(currentSong.link);
-      return {
-        isPlaying: true,
-        title: data.video_details.title,
-        requestBy: currentSong.user,
-      };
-    }
+    return this.youtubeClient.GetCurrentSong();
   }
 }
