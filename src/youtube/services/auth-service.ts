@@ -72,7 +72,7 @@ export default class SpotifyAuthService {
         client_id: credentionals.clientId!,
         client_secret: credentionals.clientSecret!,
         refresh_token: refreshToken,
-        market: "US",
+        market: "US", // Is stricting to US market will be a problem? If so, please fix it
       },
     });
 

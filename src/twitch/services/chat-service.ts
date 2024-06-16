@@ -20,6 +20,7 @@ export class TwitchChatService {
     Log("Twitch", "Chat Client started");
   }
 
+  // Note: Maybe add a timeout to prevent spam
   public async SendCurrentSong(__: string, user: string, text: string) {
     if (!this.twitchClient.user) return Log("Twitch", "Cannot send message, because user was not found");
     if (text !== "!current") return;
