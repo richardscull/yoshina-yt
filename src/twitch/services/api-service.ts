@@ -62,7 +62,7 @@ export class TwitchApiService {
       }
 
       const rewards = await this.api.channelPoints.getCustomRewards(this.twitchClient.user.id);
-      const repeatedReward = rewards.find((reward) => reward.title === "Spotify Song Request");
+      const repeatedReward = rewards.find((reward) => reward.title === "Song Request");
 
       if (repeatedReward) {
         Log("Twitch", "Initial custom reward already exist, skipping creation");
@@ -77,11 +77,11 @@ export class TwitchApiService {
 
       const createdCustomReward = await this.api.channelPoints.createCustomReward(this.twitchClient.user.id, {
         cost: 500,
-        title: "Spotify Song Request",
+        title: "Song Request",
         backgroundColor: "#030303",
         isEnabled: true,
         userInputRequired: true,
-        prompt: "Please provide link to spotify song",
+        prompt: "Please provide link to youtube/spotify song you want to request",
       });
 
       writeJsonFile({
