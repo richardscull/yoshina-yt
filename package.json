@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@fastify/static": "^7.0.4",
     "@fastify/websocket": "^10.0.1",
     "@twurple/api": "^6.2.0",
     "@twurple/auth": "^6.2.0",

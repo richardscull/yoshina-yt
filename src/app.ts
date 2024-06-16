@@ -1,16 +1,16 @@
-import { AuthServer } from "./server/server-client";
+import { WebServer } from "./server/server-client";
 import { TwitchClient } from "./twitch/twitch-client";
 import "./utils/check-env";
 import YoutubeClient from "./youtube/youtube-client";
 
 export class App {
-  public authServer: AuthServer;
+  public webServer: WebServer;
 
   public twitchClient!: TwitchClient;
   public youtubeClient: YoutubeClient;
 
   constructor() {
-    this.authServer = new AuthServer(this);
+    this.webServer = new WebServer(this);
     this.youtubeClient = new YoutubeClient(this);
     this.twitchClient = new TwitchClient(this);
   }
