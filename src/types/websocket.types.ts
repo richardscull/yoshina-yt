@@ -16,7 +16,7 @@ export enum ServerMessageType {
 }
 
 export interface UpdatePlayState {
-  isPlaying: boolean;
+   seek: number;
 }
 
 export interface UpdateVolume {

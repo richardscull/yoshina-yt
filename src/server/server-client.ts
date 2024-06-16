@@ -69,13 +69,12 @@ export class WebServer {
         case ServerMessageType.NEW_SONG:
           this.app.youtubeClient.websocketService.NextSong();
           break;
-        // TODO: Implement these
-        // case ServerMessageType.PAUSE_SONG:
-        //   this.app.youtubeClient.websocketService.SendPauseSong();
-        //   break;
-        // case ServerMessageType.RESUME_SONG:
-        //   this.app.youtubeClient.websocketService.SendResumeSong();
-        //   break;
+        case ServerMessageType.PAUSE_SONG:
+          this.app.youtubeClient.websocketService.SendPauseSong(message.data?.seek || 0);
+          break;
+        case ServerMessageType.RESUME_SONG:
+          this.app.youtubeClient.websocketService.SendResumeSong(message.data?.seek || 0);
+          break;
         // case ServerMessageType.CHANGE_VOLUME:
         //   this.app.youtubeClient.websocketService.SendChangeVolume(message.data);
         //   break;

@@ -3,7 +3,7 @@ import { Log } from "../utils/log";
 import { RequestQueueElement } from "../types/spotify.types";
 import YoutubeMusicService from "./services/music-service";
 import YoutubeAuthService from "./services/auth-service";
-import { SongObject } from "../types/youtube.types";
+import { CurrentSong, SongObject } from "../types/youtube.types";
 import YoutubeWebSocketService from "./services/ws-service";
 
 export default class YoutubeClient {
@@ -15,7 +15,7 @@ export default class YoutubeClient {
 
   public requestsQueue: Set<RequestQueueElement> = new Set();
   private songsQueue: Set<SongObject> = new Set();
-  private currentSong: (SongObject & { requestedAt: number }) | null = null;
+  private currentSong: CurrentSong | null = null;
 
   constructor(app: App) {
     this.app = app;
@@ -38,6 +38,8 @@ export default class YoutubeClient {
   }
 
   public PopSongFromQueue() {
+    const hasListeners = this.app.webServer.websocketClients.size > 0;
+
     if (this.songsQueue.size <= 0) {
       this.currentSong = null;
     } else {
@@ -45,10 +47,22 @@ export default class YoutubeClient {
       this.songsQueue.delete(nextSong);
 
       this.currentSong = {
-        ...nextSong,
-        requestedAt: new Date().getTime(),
+        ...(nextSong as SongObject),
+        playingSince: hasListeners ? Date.now() : -1,
+        isPlaying: hasListeners ? true : false,
+        seek: 0,
       };
     }
+
+    return this.currentSong;
+  }
+
+  public UpdateCurrentSongStatus({ isPlaying, seek }: { isPlaying: boolean; seek: number }) {
+    if (!this.currentSong) return;
+
+    this.currentSong.isPlaying = isPlaying;
+    this.currentSong.seek = seek;
+    this.currentSong.playingSince = isPlaying ? Date.now() : -1;
 
     return this.currentSong;
   }

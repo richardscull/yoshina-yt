@@ -6,7 +6,11 @@ var playerYT;
 source.onmessage = function (event) {
   const data = JSON.parse(event.data);
 
-  if (data.type !== "NEW_SONG" && data.type !== "GET_CURRENT_SONG") return;
+  if (!data.type) return console.log("No type found in data", data.type);
+
+  const AllowedTypes = ["NEW_SONG", "GET_CURRENT_SONG", "RESUME_SONG", "PAUSE_SONG"];
+
+  if (!AllowedTypes.includes(data.type)) return console.log("Type not allowed", data.type);
 
   if (!data.data && data.type === "GET_CURRENT_SONG") return;
 
@@ -15,8 +19,7 @@ source.onmessage = function (event) {
     title: "Example Video",
     author: "Author Name",
     sender: "Sender Name",
-    requestedAt: data.data.requestedAt,
-    elementId: "video_player",
+    data: data.data,
   };
 
   if (!playerYT) return Player(request);
@@ -24,11 +27,17 @@ source.onmessage = function (event) {
   if (data.type === "NEW_SONG") {
     playerYT.loadVideoById({
       videoId: data.data.videoId,
-      startSeconds: Math.floor((new Date().getTime() - data.data.requestedAt) / 1000),
+      startSeconds: Math.floor((Date.now() - data.playingSince) / 1000) + data.seek,
     });
-  }
-
-  if (data.type === "play-song") {
+  } else if (data.type === "RESUME_SONG") {
+    console.log("Resume song!!!");
+    playerYT.seekTo(data.data.seek);
+    playerYT.playVideo();
+  } else if (data.type === "PAUSE_SONG") {
+    console.log("Pause song!!!");
+    playerYT.seekTo(data.data.seek);
+    playerYT.pauseVideo();
+  } else if (data.type === "play-song") {
     console.log("Play song");
   }
 };

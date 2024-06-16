@@ -1,8 +1,8 @@
 import { Log } from "../../utils/log";
 import YoutubeClient from "../youtube-client";
-import { SongObject } from "../../types/youtube.types";
+import { CurrentSong } from "../../types/youtube.types";
 import { WebSocket } from "@fastify/websocket";
-import { ServerMessage, ServerMessageType } from "../../types/websocket.types";
+import { ServerMessage, ServerMessageType, UpdatePlayState } from "../../types/websocket.types";
 
 export default class YoutubeWebSocketService {
   public youtubeClient!: YoutubeClient;
@@ -14,6 +14,42 @@ export default class YoutubeWebSocketService {
     this.websocketClients = client.app.webServer.websocketClients;
 
     Log("Youtube", "WebSocket Service started");
+  }
+
+  public SendPauseSong(seek: number) {
+    Log("WebSocket", "Sending pause song to clients");
+
+    this.youtubeClient.UpdateCurrentSongStatus({
+      isPlaying: false,
+      seek,
+    });
+
+    const data: ServerMessage = {
+      type: ServerMessageType.PAUSE_SONG,
+      data: {
+        seek,
+      } as UpdatePlayState,
+    };
+
+    this.sendDataToClients(data);
+  }
+
+  public SendResumeSong(seek: number) {
+    Log("WebSocket", "Sending resume song to clients");
+
+    this.youtubeClient.UpdateCurrentSongStatus({
+      isPlaying: true,
+      seek,
+    });
+
+    const data: ServerMessage = {
+      type: ServerMessageType.RESUME_SONG,
+      data: {
+        seek,
+      } as UpdatePlayState,
+    };
+
+    this.sendDataToClients(data);
   }
 
   public async NextSong() {
@@ -31,7 +67,7 @@ export default class YoutubeWebSocketService {
   }
 
   // TODO: Should also send queue if it's not empty
-  public SendNewSong(request: SongObject & { requestedAt: number }) {
+  public SendNewSong(request: CurrentSong) {
     Log("WebSocket", "Sending new song to clients");
 
     const data: ServerMessage = {

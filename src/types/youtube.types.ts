@@ -12,3 +12,9 @@ export type TrackShortInfo = {
   url: string;
   duration: number;
 };
+
+export interface CurrentSong extends SongObject {
+  playingSince: number;
+  isPlaying: boolean;
+  seek: number;
+}

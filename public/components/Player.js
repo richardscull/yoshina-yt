@@ -1,18 +1,19 @@
 function Player(request) {
-  const { videoId, title, author, sender, requestedAt, elementId } = request;
+  const { videoId, title, author, sender, elementId, data } = request;
   var tag = document.createElement("script");
   tag.src = "https://www.youtube.com/iframe_api";
   var firstScriptTag = document.getElementsByTagName("script")[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-  const startPlayFrom = Math.floor((new Date().getTime() - requestedAt) / 1000);
- 
+  // TODO: UPDATE
+  const startPlayFrom = Math.floor((Date.now() - data.playingSince) / 1000) + data.seek;
+
   function play() {
     playerYT = new YT.Player("player", {
       height: "390",
       width: "640",
       videoId: videoId,
-      start: Math.floor((new Date().getTime() - requestedAt) / 1000),
+      start: Math.floor((Date.now() - data.playingSince) / 1000) + data.seek,
       playerVars: {
         playsinline: 1,
       },
@@ -33,13 +34,32 @@ function Player(request) {
   }
 
   function onPlayerReady(event) {
-    playerYT.seekTo(startPlayFrom);
-    event.target.playVideo();
+    console.log("Player ready", data.isPlaying);
+    if (data.isPlaying) {
+      console.log(startPlayFrom);
+      playerYT.seekTo(startPlayFrom);
+      event.target.playVideo();
+      return;
+    } else {
+      if (data.seek > 0) {
+        playerYT.seekTo(data.seek);
+        event.target.pauseVideo();
+      } else {
+        source.send(JSON.stringify({ type: "RESUME_SONG", data: { seek: 0 } }));
+      }
+    }
   }
 
+  let isPlaying = true;
   function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.ENDED) {
       source.send(JSON.stringify({ type: "NEW_SONG" }));
+    } else if (event.data == YT.PlayerState.PAUSED) {
+      isPlaying = false;
+      source.send(JSON.stringify({ type: "PAUSE_SONG", data: { seek: event.target.getCurrentTime() } }));
+    } else if (event.data == YT.PlayerState.PLAYING && !isPlaying) {
+      isPlaying = true;
+      source.send(JSON.stringify({ type: "RESUME_SONG", data: { seek: event.target.getCurrentTime() } }));
     }
   }
 
