@@ -18,6 +18,7 @@ Simply putting, it's a bot that listens to twitch chat and reacts to custom rewa
 When someone redeems the reward, it will add the track to the player queue. <br />
 Player will play tracks in order they were added. <br />
 You as streamer can skip tracks, pause, resume, stop player from browser <br />
+Users can use `!current` command in chat to see current track. <br />
 
 # Installation & Setup 🛠️
 

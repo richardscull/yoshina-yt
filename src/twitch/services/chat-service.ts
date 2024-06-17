@@ -6,6 +6,8 @@ export class TwitchChatService {
   public twitchClient: TwitchClient;
   public chat: ChatClient;
 
+  private isCurrentCommandTimeouted = false;
+
   constructor(client: TwitchClient) {
     this.twitchClient = client;
 
@@ -20,15 +22,20 @@ export class TwitchChatService {
     Log("Twitch", "Chat Client started");
   }
 
-  // Note: Maybe add a timeout to prevent spam
   public async SendCurrentSong(__: string, user: string, text: string) {
     if (!this.twitchClient.user) return Log("Twitch", "Cannot send message, because user was not found");
     if (text !== "!current") return;
+    if (this.isCurrentCommandTimeouted) return;
 
     const data = await this.twitchClient.app.youtubeClient.musicService.GetDataFromCurrentSong();
 
     if (!data) return this.Say(`@${user} , No song is currently playing`);
-    this.Say(`@${user} , Current song: "${data.title}" requested by ${data.requestedBy}`);
+    this.Say(`@${user} , Current song: "${data.title}"`);
+
+    this.isCurrentCommandTimeouted = true;
+    setTimeout(() => {
+      this.isCurrentCommandTimeouted = false;
+    }, 15000);
   }
 
   public Say(message: string) {
