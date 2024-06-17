@@ -26,7 +26,25 @@ class YoutubePlayer {
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
     window.onYouTubePlayerAPIReady = function () {
+      const currentRoute = window.location.pathname;
+      const isPlayer = currentRoute === "/" ? 1 : 0;
+
       this.player = new YT.Player(elementId, {
+        height: "360",
+        width: "640",
+        playerVars: {
+          autoplay: 1,
+          controls: isPlayer ? 1 : 0,
+          mute: isPlayer ? 0 : 1,
+          disablekb: 1,
+          enablejsapi: 1,
+          fs: 0,
+          iv_load_policy: 3,
+          modestbranding: 1,
+          playsinline: 1,
+          rel: 0,
+          showinfo: 0,
+        },
         events: {
           onReady: this.onPlayerReady.bind(this),
           onStateChange: this.onPlayerStateChange.bind(this),
@@ -68,7 +86,7 @@ class YoutubePlayer {
 
     if (seek) this.player.seekTo(seek);
 
-    this.player.pauseVideo();
+    await this.player.pauseVideo();
     this.isPlaying = false;
 
     await this.waitForPlayer();
@@ -80,7 +98,7 @@ class YoutubePlayer {
     if (ignoreWS) this.ignoreNextStateChange = true;
     if (seek) this.player.seekTo(seek);
 
-    this.player.playVideo();
+    await this.player.playVideo();
     this.isPlaying = true;
 
     await this.waitForPlayer();

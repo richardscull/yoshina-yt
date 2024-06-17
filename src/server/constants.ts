@@ -3,4 +3,5 @@ export const RoutesConst = {
   TWITCH_CODE: "/twitch-auth",
   WEBSOCKET_PATH: "/ws",
   PLAYER: "/",
+  WIDGET: "/widget",
 } as const;

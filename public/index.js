@@ -39,10 +39,10 @@ websocket.onmessage = async function (event) {
 
       break;
     case "RESUME_SONG":
-      await playerYT.ResumeVideo(data.seek);
+      await playerYT.ResumeVideo(data.seek, true);
       break;
     case "PAUSE_SONG":
-      await playerYT.PauseVideo(data.seek);
+      await playerYT.PauseVideo(data.seek, true);
       break;
     case "UPDATE_QUEUE":
       queueObj.UpdateQueue(data);

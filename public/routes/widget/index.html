@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <style>
+    body {
+      background-color: #00ff00;
+      width: 100%;
+      height: 100%;
+      display: flex;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Youtube Video Player</title>
+
+    <script src="/components/Player.js" defer></script>
+    <script src="/components/Queue.js" defer></script>
+    <script src="/index.js" defer></script>
+
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+  <div id="app_container" class="hidden"><div id="player"></div></div>
+</html>
