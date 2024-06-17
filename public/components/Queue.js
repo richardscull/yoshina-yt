@@ -80,6 +80,14 @@ class QueueManager {
     requestedBy.classList.add("requestedBy");
     details.appendChild(requestedBy);
 
+    const skipButton = document.createElement("button");
+    skipButton.innerHTML = "🗙";
+    skipButton.classList.add("skip-button");
+    skipButton.onclick = () => {
+      this.websocket.send(JSON.stringify({ type: "REMOVE_SONG", data: item }));
+    };
+    li.appendChild(skipButton);
+
     return li;
   }
 }

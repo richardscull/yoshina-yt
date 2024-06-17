@@ -58,8 +58,8 @@ body {
 }
 
 .player-container {
-  min-height: 360px;
-  max-height: 360px;
+  min-height: 444px;
+  max-height: 444px;
   min-width: 640px;
   max-width: 640px;
   justify-content: center;
@@ -76,6 +76,7 @@ body {
 .grid-item {
   padding: 20px;
   flex: 1;
+  place-content: baseline;
 }
 
 @media (max-width: 1370px) {
@@ -87,6 +88,7 @@ body {
 
 .player {
   position: absolute;
+  place-self: end;
 }
 
 .queue-container {
@@ -96,10 +98,10 @@ body {
   align-items: baseline;
   z-index: 1;
 
-  min-height: 360px;
-  max-height: 360px;
-  min-width: 320px;
-  max-width: 320px;
+  min-height: 444px;
+  max-height: 444px;
+  min-width: 360px;
+  max-width: 360px;
 }
 
 .queue-list {
@@ -121,7 +123,9 @@ body {
   align-items: center;
   padding: 10px 0px 10px 10px;
   background-color: #272727;
-  width: 90%;
+  width: 95%;
+  height: 70px;
+  margin-bottom: 15px;
 }
 
 .queue-item:hover {
@@ -150,12 +154,6 @@ body {
   color: #c5c5c5;
 }
 
-.queue-item img {
-  width: 50px;
-  height: 50px;
-  border-radius: 5px;
-}
-
 .queue-item p {
   margin: 0;
   padding: 0;
@@ -163,7 +161,7 @@ body {
 
 .thumbnail {
   width: 80px !important;
-  height: 45px !important;
+  height: 50px !important;
   border-radius: 5px;
 }
 
@@ -190,4 +188,17 @@ body {
   display: block;
   width: 50px;
   height: 50px;
+}
+
+.skip-button {
+  height: 100%;
+  margin: 5px;
+  color: #f3f3f3;
+  background-color: #161616;
+  border: none;
+  cursor: pointer;
+}
+
+.skip-button:hover {
+  background-color: #4b4b4b;
 }
