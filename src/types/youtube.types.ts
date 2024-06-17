@@ -1,4 +1,5 @@
 export interface SongObject {
+  id: string;
   title: string;
   videoId: string;
   requestedBy: string;

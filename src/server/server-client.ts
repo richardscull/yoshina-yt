@@ -77,10 +77,8 @@ export class WebServer {
       switch (message.type) {
         case ServerMessageType.NEW_SONG:
           const currentPlayerSongId = message.data;
-          const currentSong = this.app.youtubeClient.GetCurrentSong();
-          const currentSongId = `${currentSong?.requestedBy}-${currentSong?.requestedAt}`;
 
-          if (currentPlayerSongId !== currentSongId) return;
+          if (currentPlayerSongId !== this.app.youtubeClient.GetCurrentSong()?.id) return;
 
           this.app.youtubeClient.websocketService.NextSong();
 
@@ -96,9 +94,16 @@ export class WebServer {
         case ServerMessageType.RESUME_SONG:
           this.app.youtubeClient.websocketService.SendResumeSong(message.data?.seek || 0);
           break;
-        // case ServerMessageType.CHANGE_VOLUME:
-        //   this.app.youtubeClient.websocketService.SendChangeVolume(message.data);
-        //   break;
+        case ServerMessageType.REMOVE_SONG:
+          const song = message.data;
+
+          if (song.id === this.app.youtubeClient.GetCurrentSong()?.id) {
+            this.app.youtubeClient.websocketService.NextSong();
+            // We don't need to send update queue, because NextSong will do it
+          } else {
+            this.app.youtubeClient.websocketService.SendUpdateQueue("REMOVE", { song: message.data });
+          }
+          break;
         case ServerMessageType.GET_QUEUE:
           this.app.youtubeClient.websocketService.SendUpdateQueue("SET", { connection });
           break;

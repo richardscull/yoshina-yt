@@ -1,8 +1,10 @@
 class QueueManager {
   listElement = document.getElementById("queue");
+  websocket = null;
   queue = [];
 
-  constructor() {
+  constructor(websocket) {
+    this.websocket = websocket;
     console.log("Queue Manager started");
   }
 
@@ -24,15 +26,14 @@ class QueueManager {
   add(song) {
     if (!song) return;
     const element = this.createListItem(song);
-    const id = `${song.requestedBy}-${song.requestedAt}`;
+    const id = song.id;
     this.queue.push({ id, element });
     this.listElement.appendChild(element);
     this.updateCurrentSongColor();
   }
 
   remove(song) {
-    const id = `${song.requestedBy}-${song.requestedAt}`;
-    const index = this.queue.findIndex((item) => item.id === id);
+    const index = this.queue.findIndex((item) => item.id === song.id);
     if (index === -1) return;
 
     this.listElement.removeChild(this.queue[index].element);
@@ -41,7 +42,7 @@ class QueueManager {
   }
 
   updateCurrentSongColor() {
-    this.queue[0].element.style.backgroundColor = "#363636";
+    if (this.queue[0]) this.queue[0].element.style.backgroundColor = "#363636";
   }
 
   GetCurrentSong() {

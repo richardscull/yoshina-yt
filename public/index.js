@@ -2,7 +2,7 @@ const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const websocket = new WebSocket(protocol + "//" + window.location.host + "/ws");
 
 const elementId = "player";
-const queueObj = new QueueManager();
+const queueObj = new QueueManager(websocket);
 const playerYT = new YoutubePlayer(elementId, websocket, queueObj);
 
 websocket.onmessage = async function (event) {
@@ -18,7 +18,11 @@ websocket.onmessage = async function (event) {
 
   switch (type) {
     case "NEW_SONG":
-      if (!data) return await playerYT.HidePlayer(); // No song is playing and no song in queue
+      if (!data) {
+        // No song is playing and no song in queue
+        await playerYT.PauseVideo(0, true);
+        return await playerYT.HidePlayer();
+      }
 
       return await playerYT.PlayVideo(data, true);
     case "GET_CURRENT_SONG":

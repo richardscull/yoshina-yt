@@ -80,6 +80,7 @@ export default class YoutubeMusicService {
         );
 
         const request: SongObject = {
+          id: Math.random().toString(36).slice(2),
           videoId: ytUrl.split("=")[1].split("&")[0],
           requestedBy: user,
           requestedAt: Date.now(),

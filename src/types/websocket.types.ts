@@ -14,6 +14,7 @@ export enum ServerMessageType {
   MESSAGE = "MESSAGE", // Send a message to the client (e.g. console/error message)
   GET_CURRENT_SONG = "GET_CURRENT_SONG", // Get current song from YT player
   GET_QUEUE = "GET_QUEUE", // Get current queue from YT player
+  REMOVE_SONG = "REMOVE_SONG", // Remove song from queue by ID
 }
 
 export interface UpdatePlayState {
