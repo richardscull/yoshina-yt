@@ -81,6 +81,7 @@ export default class YoutubeMusicService {
         const request: SongObject = {
           videoId: ytUrl.split("=")[1].split("&")[0],
           requestedBy: user,
+          requestedAt: Date.now(),
           title: song.video_details.title || "Unknown",
           duration: song.video_details.durationRaw,
           thumbnail: await GetValidImage(song.video_details.thumbnails),

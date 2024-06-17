@@ -2,6 +2,7 @@ export interface SongObject {
   title: string;
   videoId: string;
   requestedBy: string;
+  requestedAt: number;
   thumbnail?: string;
   duration?: string;
 }
