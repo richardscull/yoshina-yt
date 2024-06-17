@@ -42,7 +42,7 @@ Users can use `!current` command in chat to see current track. <br />
 
 # Special Thanks ❤️
 
-- [shysecre - For original project and idea](https://github.com/shysecre)
+- [shysecre - For original project and the idea](https://github.com/shysecre)
 
 <p align="center">
   <img src="./cats.png" alt="">
