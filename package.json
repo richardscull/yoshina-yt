@@ -1,4 +1,9 @@
 {
+  "name": "yoshina-yt",
+  "version": "1.0.0",
+  "description": "Twitch song request via custom reward's bot for web player with support of YouTube and Spotify!",
+  "author": "richardscull",
+  "license": "MIT",
   "dependencies": {
     "@fastify/static": "^7.0.4",
     "@fastify/websocket": "^10.0.1",
@@ -14,23 +19,13 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@types/express": "^4.17.17",
     "@types/node": "^18.16.3",
     "@types/spotify-web-api-node": "^5.0.7",
-    "@vercel/ncc": "^0.36.1",
-    "nodemon": "^2.0.22",
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "run:dev": "nodemon ./src/app.ts",
-    "run:build": "node ./dist/app.js",
-    "run:compile": "tsc --build --clean --dry && tsc",
-    "run:ncc": "ncc build ./dist/app.js -o ./ncc -m",
-    "run:package": "yarn run:compile && yarn run:ncc"
-  },
-  "name": "yoshina",
-  "version": "1.0.0",
-  "description": "App that uses twurple lib to interact with twitch chat and spotify web api to interact with spotify. Developing for streamers & users that want to have spotify songs requests via custom rewards",
-  "author": "sekkure<secreori@gmail.com>",
-  "license": "MIT"
+    "build": "node ./dist/app.js",
+    "compile": "tsc --build --clean --dry && tsc",
+    "package": "npm run compile && npm run build"
+  }
 }
