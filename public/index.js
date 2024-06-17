@@ -1,52 +1,58 @@
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-const source = new WebSocket(protocol + "//" + window.location.host + "/ws");
+const websocket = new WebSocket(protocol + "//" + window.location.host + "/ws");
 
-var playerYT;
+const elementId = "player";
+const queueObj = new QueueManager();
+const playerYT = new YoutubePlayer(elementId, websocket, queueObj);
 
-source.onmessage = function (event) {
-  const data = JSON.parse(event.data);
+websocket.onmessage = async function (event) {
+  const dataPayload = JSON.parse(event.data);
+  if (!dataPayload.type) return console.log("No type found in data", dataPayload.type);
 
-  if (!data.type) return console.log("No type found in data", data.type);
+  const AllowedTypes = ["NEW_SONG", "PAUSE_SONG", "RESUME_SONG", "CHANGE_VOLUME", "UPDATE_QUEUE", "MESSAGE", "GET_CURRENT_SONG"];
+  if (!AllowedTypes.includes(dataPayload.type)) return console.log("Type not allowed", dataPayload.type);
 
-  const AllowedTypes = ["NEW_SONG", "GET_CURRENT_SONG", "RESUME_SONG", "PAUSE_SONG"];
+  const { data, type } = dataPayload;
 
-  if (!AllowedTypes.includes(data.type)) return console.log("Type not allowed", data.type);
+  console.log("Received message from server", dataPayload);
 
-  if (!data.data && data.type === "GET_CURRENT_SONG") return;
+  switch (type) {
+    case "NEW_SONG":
+      if (!data) return await playerYT.HidePlayer(); // No song is playing and no song in queue
 
-  const request = {
-    videoId: data.data.videoId,
-    title: "Example Video",
-    author: "Author Name",
-    sender: "Sender Name",
-    data: data.data,
-  };
+      return await playerYT.PlayVideo(data, true);
+    case "GET_CURRENT_SONG":
+      if (!data) break; // No song is playing
 
-  if (!playerYT) return Player(request);
+      await playerYT.PlayVideo(data, true, false);
+      if (!data.isPlaying) {
+        if (data.seek > 0) {
+          await playerYT.PauseVideo();
+        } else {
+          websocket.send(JSON.stringify({ type: "RESUME_SONG", data: { seek: 0 } }));
+          break;
+        }
+      }
 
-  if (data.type === "NEW_SONG") {
-    playerYT.loadVideoById({
-      videoId: data.data.videoId,
-      startSeconds: Math.floor((Date.now() - data.playingSince) / 1000) + data.seek,
-    });
-  } else if (data.type === "RESUME_SONG") {
-    console.log("Resume song!!!");
-    playerYT.seekTo(data.data.seek);
-    playerYT.playVideo();
-  } else if (data.type === "PAUSE_SONG") {
-    console.log("Pause song!!!");
-    playerYT.seekTo(data.data.seek);
-    playerYT.pauseVideo();
-  } else if (data.type === "play-song") {
-    console.log("Play song");
+      const seekTo = data.isPlaying ? Math.floor((Date.now() - data.playingSince) / 1000) + data.seek : data.seek;
+      await playerYT.setSeek(seekTo, true);
+
+      break;
+    case "RESUME_SONG":
+      await playerYT.ResumeVideo(data.seek);
+      break;
+    case "PAUSE_SONG":
+      await playerYT.PauseVideo(data.seek);
+      break;
+    case "UPDATE_QUEUE":
+      queueObj.UpdateQueue(data);
+      break;
+    case "MESSAGE":
+      console.log(`Message from server: ${data}`);
+      break;
   }
 };
 
-source.onopen = function () {
-  console.log("get current song");
-  source.send(JSON.stringify({ type: "GET_CURRENT_SONG" }));
+websocket.onopen = function () {
+  websocket.send(JSON.stringify({ type: "GET_QUEUE" }));
 };
-
-source.addEventListener("message", function (event) {
-  console.log(event.data);
-});
