@@ -149,12 +149,15 @@ export class WebServer {
     this.app.twitchClient.getTokensFromCode(query.code);
   }
 
-  private startServer() {
+  private async startServer() {
     if (!this.serverStarted) {
       this.serverStarted = new Date();
       this.server.listen({
         port: Number(process.env.AUTH_SERVER_PORT),
       });
+
+      const open = Function('return import("open")')() as Promise<typeof import("open") | any>;
+      (await open).openApp(`http://localhost:${process.env.AUTH_SERVER_PORT}`);
 
       const coloredLink = chalk.cyanBright(`http://localhost:${process.env.AUTH_SERVER_PORT}`);
       Log("Server", `Server started on ${coloredLink}, feel free to open it in your browser!`);
