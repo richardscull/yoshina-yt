@@ -12,6 +12,7 @@ export const ErrorCodes = {
   BAD_REQUEST: "Sorry %username% , but I can't find this track.",
   TOO_LONG: "Sorry %username% , but this track is too long. It should be less that 10 minutes.",
   UNTRUSTED: "Sorry %username% , but this track is untrusted. It should have at least 5000 views.",
+  IS_EXPLICIT: "Sorry %username% , but this track is explicit. I can't play it.",
 };
 
 export default class YoutubeMusicService {
@@ -150,7 +151,8 @@ export default class YoutubeMusicService {
   }
 
   private async getYouTubeTrack(url: string) {
-    const videoData = await play.video_info(url).catch(() => {
+    const videoData = await play.video_info(url).catch((err) => {
+      if (err.message.includes("Sign in to confirm your age")) throw ErrorCodes.IS_EXPLICIT;
       throw ErrorCodes.BAD_REQUEST;
     });
 
