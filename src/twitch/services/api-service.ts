@@ -81,6 +81,8 @@ export class TwitchApiService {
         backgroundColor: "#030303",
         isEnabled: true,
         userInputRequired: true,
+        globalCooldown: 10,
+        
         prompt: "Please provide link to youtube/spotify song you want to request",
       });
 
