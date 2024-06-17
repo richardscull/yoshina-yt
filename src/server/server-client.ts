@@ -5,6 +5,7 @@ import { App } from "../app";
 import { RoutesConst } from "./constants";
 import { ServerMessage, ServerMessageType } from "../types/websocket.types";
 import { Log } from "../utils/log";
+import chalk from "chalk";
 
 export class WebServer {
   public app: App;
@@ -149,6 +150,9 @@ export class WebServer {
       this.server.listen({
         port: Number(process.env.AUTH_SERVER_PORT),
       });
+
+      const coloredLink = chalk.cyanBright(`http://localhost:${process.env.AUTH_SERVER_PORT}`);
+      Log("Server", `Server started on ${coloredLink}, feel free to open it in your browser!`);
     }
   }
 }

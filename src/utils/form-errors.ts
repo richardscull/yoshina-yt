@@ -1,9 +1,9 @@
-import chalk from 'chalk'
-import { ZodIssue } from 'zod'
+import chalk from "chalk";
+import { ZodIssue } from "zod";
 
 const checkForRequired = (message: string) => {
-  return message === 'Required'
-}
+  return message === "Required";
+};
 
 const formError = ({ path, message, code }: ZodIssue) => {
   const colors = {
@@ -11,23 +11,18 @@ const formError = ({ path, message, code }: ZodIssue) => {
     reqTrue: chalk.green,
     reqFalse: chalk.red,
     codeColor: chalk.yellowBright,
-  }
+  };
 
-  const field = colors.fieldColor(path[0])
-  const isRequired = checkForRequired(message)
-    ? colors.reqTrue('true')
-    : colors.reqFalse('false')
+  const field = colors.fieldColor(path[0]);
+  const isRequired = checkForRequired(message) ? colors.reqTrue("true") : colors.reqFalse("false");
 
-  const codeStr = colors.codeColor(code)
+  const codeStr = colors.codeColor(code);
 
-  return `Field: ${field}, isRequired: ${isRequired}, code: ${codeStr}`
-}
+  return `Field: ${field}, isRequired: ${isRequired}, code: ${codeStr}`;
+};
 
 export const formErrors = (issues: ZodIssue[]) => {
-  const forHumans = issues.map(formError).join('\n')
+  const forHumans = issues.map(formError).join("\n");
 
-  console.log(
-    `Something wrong with your .env file! Please check message below\n\n` +
-      forHumans
-  )
-}
+  console.log(`Something wrong with your .env file! Please check message below\n\n` + forHumans);
+};

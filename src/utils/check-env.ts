@@ -1,8 +1,8 @@
-import { object, string } from 'zod'
+import { object, string } from "zod";
 
-import 'dotenv/config'
+import "dotenv/config";
 
-import { formErrors } from './form-errors'
+import { formErrors } from "./form-errors";
 
 export default (() => {
   const envSchema = object({
@@ -14,15 +14,15 @@ export default (() => {
     SPOTIFY_SECRET: string(),
     SPOTIFY_CLIENT_ID: string(),
     SPOTIFY_REDIRECT_URL: string(),
-  })
+  });
 
-  const parseResult = envSchema.safeParse(process.env)
+  const parseResult = envSchema.safeParse(process.env);
 
   if (!parseResult.success) {
-    const issues = parseResult.error.issues
+    const issues = parseResult.error.issues;
 
-    formErrors(issues)
+    formErrors(issues);
 
-    process.exit(1)
+    process.exit(1);
   }
-})()
+})();

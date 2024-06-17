@@ -1,15 +1,15 @@
 export interface TwitchCreds {
-  accessToken: string
-  refreshToken: string
-  expireDate: number
+  accessToken: string;
+  refreshToken: string;
+  expireDate: number;
 }
 
 export interface TwitchSettings {
-  customRewardId: string
+  customRewardId: string;
 }
 
 export interface OnRedeemOptions {
-  userName: string
-  redemptionId: string
-  message: string
+  userName: string;
+  redemptionId: string;
+  message: string;
 }
