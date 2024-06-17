@@ -22,6 +22,7 @@ class QueueManager {
   }
 
   add(song) {
+    if (!song) return;
     const element = this.createListItem(song);
     const id = `${song.requestedBy}-${song.requestedAt}`;
     this.queue.push({ id, element });
@@ -52,6 +53,8 @@ class QueueManager {
   }
 
   createListItem(item) {
+    if (!item) return;
+
     const li = document.createElement("li");
     li.classList.add("queue-item");
     li.style.animation = "fadeIn 0.5s";
