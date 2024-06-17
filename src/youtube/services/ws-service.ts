@@ -1,8 +1,8 @@
 import { Log } from "../../utils/log";
 import YoutubeClient from "../youtube-client";
-import { CurrentSong } from "../../types/youtube.types";
+import { CurrentSong, SongObject } from "../../types/youtube.types";
 import { WebSocket } from "@fastify/websocket";
-import { ServerMessage, ServerMessageType, UpdatePlayState } from "../../types/websocket.types";
+import { ServerMessage, ServerMessageType, UpdatePlayState, UpdateQueue } from "../../types/websocket.types";
 
 export default class YoutubeWebSocketService {
   public youtubeClient!: YoutubeClient;
@@ -64,7 +64,6 @@ export default class YoutubeWebSocketService {
     this.SendNewSong(song);
   }
 
-  // TODO: Should also send queue if it's not empty
   public SendNewSong(request: CurrentSong | null) {
     Log("WebSocket", "Sending new song to clients");
 
@@ -87,6 +86,34 @@ export default class YoutubeWebSocketService {
     };
 
     connection.send(JSON.stringify(data));
+  }
+
+  SendUpdateQueue(state: "ADD" | "REMOVE" | "SET", opts?: { song?: SongObject; connection?: WebSocket }) {
+    Log("WebSocket", "Sending update queue to clients");
+
+    if (state === "REMOVE" && !opts?.song) return; // Happens on first request with empty queue
+
+    if (state === "ADD" && !opts?.song) {
+      Log("WebSocket", "Couldn't add song to queue, song is missing");
+      return;
+    }
+
+    const queueWithCurrentSong = [this.youtubeClient.GetCurrentSong() as SongObject, ...this.youtubeClient.GetQueue()];
+
+    const data: ServerMessage = {
+      type: ServerMessageType.UPDATE_QUEUE,
+      data: {
+        state,
+        queue: state === "SET" ? queueWithCurrentSong : undefined,
+        song: state !== "SET" && opts?.song ? opts?.song : undefined,
+      } as UpdateQueue,
+    };
+
+    if (opts?.connection) {
+      opts.connection.send(JSON.stringify(data));
+    } else {
+      this.sendDataToClients(data);
+    }
   }
 
   private sendDataToClients(data: ServerMessage) {

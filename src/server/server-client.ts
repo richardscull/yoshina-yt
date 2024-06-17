@@ -55,22 +55,37 @@ export class WebServer {
 
     connection.send(JSON.stringify(data));
 
+    let isReadyToPause = true; // Can be removed on custom controls implementation, right now it's used to prevent spamming pause
+
     connection.on("message", (message: any) => {
       message = JSON.parse(message) as ServerMessage;
 
       if (!message.type) return;
 
-      const TypesWithoutData = [ServerMessageType.GET_CURRENT_SONG, ServerMessageType.NEW_SONG];
+      const TypesWithoutData = [ServerMessageType.GET_CURRENT_SONG, ServerMessageType.GET_QUEUE];
+
       if (!TypesWithoutData.includes(message.type) && !message.data) return;
 
       Log("WebSocket", `Received message with type: ${message.type}`);
 
       switch (message.type) {
         case ServerMessageType.NEW_SONG:
+          const currentPlayerSongId = message.data;
+          const currentSong = this.app.youtubeClient.GetCurrentSong();
+          const currentSongId = `${currentSong?.requestedBy}-${currentSong?.requestedAt}`;
+
+          if (currentPlayerSongId !== currentSongId) return;
+
           this.app.youtubeClient.websocketService.NextSong();
+
           break;
         case ServerMessageType.PAUSE_SONG:
+          if (!isReadyToPause) return;
           this.app.youtubeClient.websocketService.SendPauseSong(message.data?.seek || 0);
+          isReadyToPause = false;
+          setTimeout(() => {
+            isReadyToPause = true;
+          }, 500);
           break;
         case ServerMessageType.RESUME_SONG:
           this.app.youtubeClient.websocketService.SendResumeSong(message.data?.seek || 0);
@@ -78,9 +93,9 @@ export class WebServer {
         // case ServerMessageType.CHANGE_VOLUME:
         //   this.app.youtubeClient.websocketService.SendChangeVolume(message.data);
         //   break;
-        // case ServerMessageType.UPDATE_QUEUE:
-        //   this.app.youtubeClient.websocketService.SendUpdateQueue(message.data);
-        //   break;
+        case ServerMessageType.GET_QUEUE:
+          this.app.youtubeClient.websocketService.SendUpdateQueue("SET", { connection });
+          break;
         case ServerMessageType.GET_CURRENT_SONG:
           this.app.youtubeClient.websocketService.SendCurrentSong(connection);
           break;

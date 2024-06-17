@@ -30,6 +30,8 @@ export default class YoutubeClient {
   public AddSongToQueue(song: SongObject) {
     this.songsQueue.add(song);
 
+    this.app.youtubeClient.websocketService.SendUpdateQueue("ADD", { song });
+
     if (!this.currentSong) {
       this.PopSongFromQueue();
     }
@@ -40,6 +42,8 @@ export default class YoutubeClient {
   public PopSongFromQueue() {
     const hasListeners = this.app.webServer.websocketClients.size > 0;
 
+    this.app.youtubeClient.websocketService.SendUpdateQueue("REMOVE", { song: this.currentSong as SongObject });
+
     if (this.songsQueue.size <= 0) {
       this.currentSong = null;
     } else {
@@ -48,7 +52,7 @@ export default class YoutubeClient {
 
       this.currentSong = {
         ...(nextSong as SongObject),
-        playingSince: hasListeners ? Date.now() : -1,
+        playingSince: hasListeners ? Date.now() : 0,
         isPlaying: hasListeners ? true : false,
         seek: 0,
       };
@@ -62,7 +66,7 @@ export default class YoutubeClient {
 
     this.currentSong.isPlaying = isPlaying;
     this.currentSong.seek = seek;
-    this.currentSong.playingSince = isPlaying ? Date.now() : -1;
+    this.currentSong.playingSince = isPlaying ? Date.now() : 0;
 
     return this.currentSong;
   }

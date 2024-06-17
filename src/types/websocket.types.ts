@@ -13,10 +13,11 @@ export enum ServerMessageType {
   UPDATE_QUEUE = "UPDATE_QUEUE", // Update queue element (e.g. add/remove element)
   MESSAGE = "MESSAGE", // Send a message to the client (e.g. console/error message)
   GET_CURRENT_SONG = "GET_CURRENT_SONG", // Get current song from YT player
+  GET_QUEUE = "GET_QUEUE", // Get current queue from YT player
 }
 
 export interface UpdatePlayState {
-   seek: number;
+  seek: number;
 }
 
 export interface UpdateVolume {
@@ -24,6 +25,7 @@ export interface UpdateVolume {
 }
 
 export interface UpdateQueue {
-  state: "add" | "remove";
-  song: SongObject;
+  state: "ADD" | "REMOVE" | "SET";
+  song?: SongObject;
+  queue?: SongObject[];
 }
