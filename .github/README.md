@@ -1,10 +1,10 @@
 # yoshina-yt 🍃
 
-#### Twitch song request via custom reward's bot for web player with support of YouTube and Spotify!
-
 <p align="center">
-  <img src="./preview_cats.png" alt="">
+  <img src="./preview.png" alt="">
 </p>
+
+#### Twitch song request via custom reward's bot for web player with support of YouTube and Spotify!
 
 # Introduction 📕
 
@@ -43,3 +43,7 @@ Users can use `!current` command in chat to see current track. <br />
 # Special Thanks ❤️
 
 - [shysecre - For original project and idea](https://github.com/shysecre)
+
+<p align="center">
+  <img src="./cats.png" alt="">
+</p>
