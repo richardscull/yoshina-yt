@@ -61,7 +61,7 @@ export class WebServer {
 
     connection.send(JSON.stringify(data));
 
-    let isReadyToPause = true; // Can be removed on custom controls implementation, right now it's used to prevent spamming pause
+    let isReadyToPause = true; // Prevents from spamming pause
 
     connection.on("message", (message: any) => {
       message = JSON.parse(message) as ServerMessage;
@@ -72,7 +72,7 @@ export class WebServer {
 
       if (!TypesWithoutData.includes(message.type) && !message.data) return;
 
-      Log("WebSocket", `Received message with type: ${message.type}`);
+      // Log("WebSocket", `Received message with type: ${message.type}`);
 
       switch (message.type) {
         case ServerMessageType.NEW_SONG:
