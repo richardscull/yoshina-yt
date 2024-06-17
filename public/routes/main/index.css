@@ -80,8 +80,6 @@ body {
 
 @media (max-width: 1370px) {
   .queue-container {
-    min-height: 360px !important;
-    max-height: 360px !important;
     min-width: 640px !important;
     max-width: 640px !important;
   }
@@ -98,8 +96,73 @@ body {
   align-items: baseline;
   z-index: 1;
 
-  min-height: 180px;
-  max-height: 180px;
+  min-height: 360px;
+  max-height: 360px;
   min-width: 320px;
   max-width: 320px;
+}
+
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: baseline;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.queue-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0px 10px 10px;
+  background-color: #272727;
+  width: 90%;
+}
+
+.queue-item:hover {
+  background-color: #363636;
+}
+
+.queue-item-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.queue-item-details > span > a {
+  text-decoration: none;
+  color: #f3f3f3;
+}
+
+.queue-item-details > span > a:hover {
+  color: #ffa500;
+}
+
+.queue-item-details > span {
+  color: #c5c5c5;
+}
+
+.queue-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+}
+
+.queue-item p {
+  margin: 0;
+  padding: 0;
+}
+
+.thumbnail {
+  width: 80px !important;
+  height: 45px !important;
+  border-radius: 5px;
 }
