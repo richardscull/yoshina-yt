@@ -58,16 +58,14 @@ export default class YoutubeWebSocketService {
     const song = this.youtubeClient.PopSongFromQueue();
 
     if (!song) {
-      Log("WebSocket", "Couldn't set next song in queue");
-
-      return;
+      Log("WebSocket", "Couldn't set next song in queue, sending empty song to clients");
     }
 
     this.SendNewSong(song);
   }
 
   // TODO: Should also send queue if it's not empty
-  public SendNewSong(request: CurrentSong) {
+  public SendNewSong(request: CurrentSong | null) {
     Log("WebSocket", "Sending new song to clients");
 
     const data: ServerMessage = {
@@ -78,7 +76,7 @@ export default class YoutubeWebSocketService {
     this.sendDataToClients(data);
   }
 
-  public SendCurrentSong() {
+  public SendCurrentSong(connection: WebSocket) {
     Log("WebSocket", "Sending current song to clients");
 
     const song = this.youtubeClient.GetCurrentSong();
@@ -88,7 +86,7 @@ export default class YoutubeWebSocketService {
       data: song,
     };
 
-    this.sendDataToClients(data);
+    connection.send(JSON.stringify(data));
   }
 
   private sendDataToClients(data: ServerMessage) {

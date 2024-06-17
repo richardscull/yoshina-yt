@@ -82,7 +82,7 @@ export class WebServer {
         //   this.app.youtubeClient.websocketService.SendUpdateQueue(message.data);
         //   break;
         case ServerMessageType.GET_CURRENT_SONG:
-          this.app.youtubeClient.websocketService.SendCurrentSong();
+          this.app.youtubeClient.websocketService.SendCurrentSong(connection);
           break;
         case ServerMessageType.MESSAGE:
           Log("WebSocket", `Got message: ${message.data}`);
