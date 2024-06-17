@@ -59,7 +59,6 @@ class YoutubePlayer {
   }
 
   onPlayerAutoplayBlocked(event) {
-    // TODO: Show a button to play the video
     console.log("Autoplay blocked");
   }
 
