@@ -4,4 +4,5 @@ export const RoutesConst = {
   WEBSOCKET_PATH: "/ws",
   PLAYER: "/",
   WIDGET: "/widget",
+  QUEUE: "/queue",
 } as const;

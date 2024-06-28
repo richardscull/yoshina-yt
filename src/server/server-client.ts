@@ -36,6 +36,7 @@ export class WebServer {
 
     this.server.get(RoutesConst.PLAYER, this.playerHandler.bind(this));
     this.server.get(RoutesConst.WIDGET, this.widgetHandler.bind(this));
+    this.server.get(RoutesConst.QUEUE, this.queueHandler.bind(this));
 
     this.server.get(RoutesConst.SPOTI_CODE, this.spotifyCodeHandler.bind(this));
     this.server.get(RoutesConst.TWITCH_CODE, this.twitchCodeHandler.bind(this));
@@ -43,11 +44,15 @@ export class WebServer {
     this.startServer();
   }
 
-  private widgetHandler(req: FastifyRequest, res: FastifyReply) {
+  private widgetHandler(_: FastifyRequest, res: FastifyReply) {
     return res.sendFile("routes/widget/index.html");
   }
 
-  private playerHandler(req: FastifyRequest, res: FastifyReply) {
+  private queueHandler(_: FastifyRequest, res: FastifyReply) {
+    return res.sendFile("routes/queue/index.html");
+  }
+
+  private playerHandler(_: FastifyRequest, res: FastifyReply) {
     return res.sendFile("routes/main/index.html");
   }
 
