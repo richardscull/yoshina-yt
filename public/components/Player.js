@@ -57,7 +57,7 @@ class YoutubePlayer {
   async ClearPlayer() {
     console.log("Clearing player");
 
-    await this.PlayVideo({}, true); // Clear player
+    this.PlayVideo({}, true); // Clear player
     this.hidePlayer();
   }
 
@@ -71,7 +71,7 @@ class YoutubePlayer {
 
   async PlayVideo(song, ignoreWS = false, toSeek = true) {
     if (ignoreWS) this.ignoreNextStateChange = true;
-    document.getElementById("app_container").classList.remove("hidden");
+    if (song.videoId) document.getElementById("app_container").classList.remove("hidden");
 
     this.player.loadVideoById({
       videoId: song.videoId,
