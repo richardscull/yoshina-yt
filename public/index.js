@@ -20,8 +20,7 @@ websocket.onmessage = async function (event) {
     case "NEW_SONG":
       if (!data) {
         // No song is playing and no song in queue
-        await playerYT.PauseVideo(0, true);
-        return await playerYT.HidePlayer();
+        return playerYT.ClearPlayer();
       }
 
       return await playerYT.PlayVideo(data, true);

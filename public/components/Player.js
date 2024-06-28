@@ -54,7 +54,14 @@ class YoutubePlayer {
     }.bind(this);
   }
 
-  HidePlayer() {
+  async ClearPlayer() {
+    console.log("Clearing player");
+
+    await this.PlayVideo({}, true); // Clear player
+    this.hidePlayer();
+  }
+
+  hidePlayer() {
     document.getElementById("app_container").classList.add("hidden");
   }
 
