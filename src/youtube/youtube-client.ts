@@ -48,7 +48,7 @@ export default class YoutubeClient {
       this.currentSong = null;
     } else {
       const nextSong = this.songsQueue.values().next().value;
-      this.songsQueue.delete(nextSong);
+      this.songsQueue.delete(nextSong!);
 
       this.currentSong = {
         ...(nextSong as SongObject),

@@ -37,7 +37,7 @@ export default class YoutubeMusicService {
     setInterval(async () => {
       if (!this.youtubeClient.requestsQueue.size) return;
 
-      const data: RequestQueueElement = this.youtubeClient.requestsQueue.values().next().value;
+      const data: RequestQueueElement = this.youtubeClient.requestsQueue.values().next().value!;
       this.youtubeClient.requestsQueue.delete(data);
 
       const userId = this.youtubeClient.app.twitchClient.user!.id;
